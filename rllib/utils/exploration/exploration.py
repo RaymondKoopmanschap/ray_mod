@@ -86,6 +86,7 @@ class Exploration:
     @DeveloperAPI
     def get_exploration_action(self,
                                *,
+                               input_dict: Dict[str, TensorType],  # ADDED
                                action_distribution: ActionDistribution,
                                timestep: Union[TensorType, int],
                                explore: bool = True):
