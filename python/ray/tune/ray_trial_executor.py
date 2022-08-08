@@ -731,6 +731,7 @@ class RayTrialExecutor(TrialExecutor):
                 trial.runner.restore_from_object.remote(value)
         else:
             logger.debug("Trial %s: Attempting restore from %s", trial, value)
+            print(f'Trial {trial}: Attempting restore from {value}')
             if trial.uses_cloud_checkpointing or not trial.sync_on_checkpoint:
                 # If using cloud checkpointing, trial will get cp from cloud.
                 # If not syncing to driver, assume it has access to the cp
@@ -741,6 +742,16 @@ class RayTrialExecutor(TrialExecutor):
                 # This provides FT backwards compatibility in the
                 # case where no cloud checkpoints are provided.
                 logger.debug("Trial %s: Reading checkpoint into memory", trial)
+                print(f'Trial {trial}: Reading checkpoint into memory')
+                if not os.path.exists(value):
+                    print(f'Checkpoint path {value} does not exist')
+                    from pathlib import Path
+                    path = Path(value).parent
+                    if not os.path.exists(path):
+                        print(f'Path {path} does not exist')
+                        path = path.parent
+                        if not os.path.exists(path):
+                            print(f'Path {path} does not exist')
                 obj = TrainableUtil.checkpoint_to_object(value)
                 with self._change_working_directory(trial):
                     remote = trial.runner.restore_from_object.remote(obj)
