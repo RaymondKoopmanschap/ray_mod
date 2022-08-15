@@ -216,6 +216,7 @@ class SimpleQTrainer(Trainer):
             The results dict from executing the training iteration.
         """
         batch_size = self.config["train_batch_size"]
+
         local_worker = self.workers.local_worker()
 
         # Sample n MultiAgentBatches from n workers.
@@ -231,6 +232,7 @@ class SimpleQTrainer(Trainer):
             self.local_replay_buffer.add(batch)
 
         # Sample one training MultiAgentBatch from replay buffer.
+        # for i in range(self.config['model']['network_updates_per_iter']):
         train_batch = self.local_replay_buffer.sample(batch_size)
 
         # Learn on the training batch.

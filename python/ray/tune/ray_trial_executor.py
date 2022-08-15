@@ -742,6 +742,8 @@ class RayTrialExecutor(TrialExecutor):
                 # This provides FT backwards compatibility in the
                 # case where no cloud checkpoints are provided.
                 logger.debug("Trial %s: Reading checkpoint into memory", trial)
+
+                # Debug code
                 print(f'Trial {trial}: Reading checkpoint into memory')
                 if not os.path.exists(value):
                     print(f'Checkpoint path {value} does not exist')
@@ -752,6 +754,8 @@ class RayTrialExecutor(TrialExecutor):
                         path = path.parent
                         if not os.path.exists(path):
                             print(f'Path {path} does not exist')
+
+                # Ray code
                 obj = TrainableUtil.checkpoint_to_object(value)
                 with self._change_working_directory(trial):
                     remote = trial.runner.restore_from_object.remote(obj)
