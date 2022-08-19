@@ -1,6 +1,7 @@
 """PyTorch policy class used for DQN"""
 
 from typing import Dict, List, Tuple
+import numpy as np
 
 import gym
 import ray
@@ -60,7 +61,7 @@ class QLoss:
 
         if num_atoms > 1:
             # Distributional Q-learning which corresponds to an entropy loss
-            z = torch.range(0.0, num_atoms - 1, dtype=torch.float32).to(rewards.device)
+            z = torch.arange(0.0, num_atoms, dtype=torch.float32).to(rewards.device)
             z = v_min + z * (v_max - v_min) / float(num_atoms - 1)
 
             # (batch_size, 1) * (1, num_atoms) = (batch_size, num_atoms)
@@ -448,6 +449,9 @@ def compute_q_values(
             value = state_score + advantages_centered
     else:
         value = action_scores
+
+    # Apply action mask
+    value, logits, probs_or_logits = model.forward_apply_action_mask(input_dict, value, logits, probs_or_logits)
 
     return value, logits, probs_or_logits, state
 
