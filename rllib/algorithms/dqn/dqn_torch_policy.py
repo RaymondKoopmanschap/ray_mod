@@ -451,7 +451,7 @@ def compute_q_values(
     else:
         value = action_scores
 
-    value, logits, probs_or_logits = model.forward_apply_action_mask(input_dict, value, logits, probs_or_logits)
+    # value, logits, probs_or_logits = model.forward_apply_action_mask(input_dict, value, logits, probs_or_logits)
 
     return value, logits, probs_or_logits, state
 
