@@ -11,9 +11,7 @@ dataset = ray.data.read_csv("s3://anonymous@air-example-data/breast_cancer.csv")
 train_dataset, valid_dataset = dataset.train_test_split(test_size=0.3)
 
 # Create a test dataset by dropping the target column.
-test_dataset = valid_dataset.map_batches(
-    lambda df: df.drop("target", axis=1), batch_format="pandas"
-)
+test_dataset = valid_dataset.drop_columns(cols=["target"])
 # __air_generic_preprocess_end__
 
 # __air_tf_preprocess_start__
@@ -59,15 +57,12 @@ def create_keras_model(input_features):
 
 def to_tf_dataset(dataset, batch_size):
     def to_tensor_iterator():
-        data_iterator = dataset.iter_batches(
-            batch_format="numpy", batch_size=batch_size
+        data_iterator = dataset.iter_tf_batches(
+            batch_size=batch_size, dtypes=tf.float32
         )
         for d in data_iterator:
-            yield (
-                # "concat_out" is the output column of the Concatenator.
-                tf.convert_to_tensor(d["concat_out"], dtype=tf.float32),
-                tf.convert_to_tensor(d["target"], dtype=tf.float32),
-            )
+            # "concat_out" is the output column of the Concatenator.
+            yield d["concat_out"], d["target"]
 
     output_signature = (
         tf.TensorSpec(shape=(None, num_features), dtype=tf.float32),

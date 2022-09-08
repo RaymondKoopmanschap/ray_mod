@@ -11,9 +11,8 @@ dataset = ray.data.read_csv("s3://anonymous@air-example-data/breast_cancer.csv")
 train_dataset, valid_dataset = dataset.train_test_split(test_size=0.3)
 
 # Create a test dataset by dropping the target column.
-test_dataset = valid_dataset.map_batches(
-    lambda df: df.drop("target", axis=1), batch_format="pandas"
-)
+test_dataset = valid_dataset.drop_columns(cols=["target"])
+
 # __air_generic_preprocess_end__
 
 # __air_xgb_preprocess_start__
@@ -39,6 +38,7 @@ trainer = XGBoostTrainer(
     params={
         # XGBoost specific params
         "objective": "binary:logistic",
+        # "tree_method": "gpu_hist",  # uncomment this to use GPUs.
         "eval_metric": ["logloss", "error"],
     },
     datasets={"train": train_dataset, "valid": valid_dataset},

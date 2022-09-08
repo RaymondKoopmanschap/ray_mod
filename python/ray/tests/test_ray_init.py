@@ -8,13 +8,90 @@ import grpc
 import pytest
 
 import ray
+from ray._private.ray_constants import RAY_OVERRIDE_DASHBOARD_URL
 import ray._private.services
 from ray._private.test_utils import run_string_as_driver
 from ray.client_builder import ClientContext
 from ray.cluster_utils import Cluster
+from ray.experimental.state.common import ray_address_to_api_server_url
 from ray.util.client.common import ClientObjectRef
 from ray.util.client.ray_client_helpers import ray_start_client_server
 from ray.util.client.worker import Worker
+
+
+@pytest.mark.parametrize(
+    "override_url",
+    [
+        None,
+        "https://external_dashboard_url",
+        "https://external_dashboard_url/path1/?query_param1=val1&query_param2=val2",
+        "new_external_dashboard_url",
+    ],
+)
+def test_hosted_external_dashboard_url(override_url, shutdown_only, monkeypatch):
+    """
+    Test setting external dashboard URL through environment variable.
+    """
+    with monkeypatch.context() as m:
+        if override_url:
+            m.setenv(
+                RAY_OVERRIDE_DASHBOARD_URL,
+                override_url,
+            )
+
+        expected_localhost_url = "127.0.0.1:8265"
+        if not override_url:
+            # No external dashboard url
+            expected_dashboard_url = "127.0.0.1:8265"
+        elif "://" in override_url:
+            # External dashboard url with https protocol included
+            expected_dashboard_url = override_url[override_url.index("://") + 3 :]
+        else:
+            # External dashboard url with no protocol
+            expected_dashboard_url = override_url
+
+        info = ray.init(dashboard_port=8265)
+        assert info.dashboard_url == expected_dashboard_url
+        assert info.address_info["webui_url"] == expected_dashboard_url
+        assert ray._private.worker._global_node.webui_url == expected_localhost_url
+        assert (
+            ray_address_to_api_server_url("auto") == "http://" + expected_localhost_url
+        )
+
+
+@pytest.mark.parametrize(
+    "call_ray_start",
+    ["ray start --head --ray-client-server-port 25553 --port 0"],
+    indirect=True,
+)
+def test_hosted_external_dashboard_url_with_ray_client(
+    set_override_dashboard_url, call_ray_start
+):
+    """
+    Test setting external dashboard URL through environment variable
+    with Ray client.
+    """
+    info = ray.init("ray://localhost:25553")
+    assert info.dashboard_url == "external_dashboard_url"
+
+
+@pytest.mark.parametrize(
+    "call_ray_start",
+    ["ray start --head --ray-client-server-port 25553 --port 0"],
+    indirect=True,
+)
+def test_hosted_external_dashboard_url_with_connecting_to_existing_cluster(
+    set_override_dashboard_url, call_ray_start
+):
+    """
+    Test setting external dashboard URL through environment variable
+    when connecting to existing Ray cluster
+    """
+    info = ray.init()
+    assert info.dashboard_url == "external_dashboard_url"
+    assert info.address_info["webui_url"] == "external_dashboard_url"
+    assert ray._private.worker._global_node.webui_url == "127.0.0.1:8265"
+    assert ray_address_to_api_server_url("auto") == "http://" + "127.0.0.1:8265"
 
 
 def test_shutdown_and_reset_global_worker(shutdown_only):
