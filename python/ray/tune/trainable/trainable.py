@@ -618,8 +618,12 @@ class Trainable:
             return self._restore_from_checkpoint_obj(checkpoint_path)
 
         print('maybe load from cloud: ', self._maybe_load_from_cloud(checkpoint_path))
-        print('path_exists: ', os.path.exists(checkpoint_node_ip))
         print('ray get node ip: ', ray.util.get_node_ip_address())
+        try:
+            print('path_exists: ', os.path.exists(checkpoint_node_ip))
+        except:
+            print('checkpoint_node_ip is not a path')
+
         if not self._maybe_load_from_cloud(checkpoint_path) and (
             # If a checkpoint source IP is given
             checkpoint_node_ip
