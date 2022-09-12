@@ -629,7 +629,7 @@ class Trainable:
             )
             if checkpoint:
                 checkpoint.to_directory(checkpoint_path)
-        print('final_checkpoint', checkpoint)
+            print('final_checkpoint', checkpoint)
 
         if not os.path.exists(checkpoint_path):
             raise ValueError(
@@ -662,6 +662,7 @@ class Trainable:
         self._episodes_total = metadata["episodes_total"]
 
         # Actually load checkpoint
+        print('to_load', to_load)
         self.load_checkpoint(to_load)
 
         self._time_since_restore = 0.0
