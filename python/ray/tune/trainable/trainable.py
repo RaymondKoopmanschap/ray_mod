@@ -623,6 +623,7 @@ class Trainable:
             print('path_exists: ', os.path.exists(checkpoint_node_ip))
         except:
             print('checkpoint_node_ip is not a path')
+        checkpoint_node_ip = "127.0.0.1"
 
         if not self._maybe_load_from_cloud(checkpoint_path) and (
             # If a checkpoint source IP is given
