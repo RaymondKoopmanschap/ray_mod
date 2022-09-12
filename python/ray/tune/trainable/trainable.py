@@ -610,6 +610,9 @@ class Trainable:
 
         """
         # Ensure Checkpoints are converted
+        print('In restore function')
+        print("checkpoint_path: ", checkpoint_path)
+        print("checkpoint_node_ip: ", checkpoint_node_ip)
         if isinstance(checkpoint_path, Checkpoint):
             return self._restore_from_checkpoint_obj(checkpoint_path)
 
@@ -626,6 +629,7 @@ class Trainable:
             )
             if checkpoint:
                 checkpoint.to_directory(checkpoint_path)
+        print('final_checkpoint', checkpoint)
 
         if not os.path.exists(checkpoint_path):
             raise ValueError(

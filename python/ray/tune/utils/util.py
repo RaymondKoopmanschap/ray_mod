@@ -147,6 +147,9 @@ def _serialize_checkpoint(checkpoint_path) -> bytes:
 def _get_checkpoint_from_remote_node(
     checkpoint_path: str, node_ip: str, timeout: float = 300.0
 ) -> Optional[Checkpoint]:
+    print('Get checkpoint from remote node')
+    print('checkpoint_path: ', checkpoint_path)
+    print('node_ip: ', node_ip)
     if not any(
         node["NodeManagerAddress"] == node_ip and node["Alive"] for node in ray.nodes()
     ):
