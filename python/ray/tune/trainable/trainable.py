@@ -610,14 +610,14 @@ class Trainable:
 
         """
         # Ensure Checkpoints are converted
-        print('In restore function')
+        print('In restore function (maybe version)')
         print("checkpoint_path: ", checkpoint_path)
         print("checkpoint_node_ip: ", checkpoint_node_ip)
         if isinstance(checkpoint_path, Checkpoint):
             print('checkpoint_path is instance of Checkpoint')
             return self._restore_from_checkpoint_obj(checkpoint_path)
 
-        print('maybe from cloud: ', self._maybe_load_from_cloud(checkpoint_path))
+        print('maybe load from cloud: ', self._maybe_load_from_cloud(checkpoint_path))
         print('path_exists: ', os.path.exists(checkpoint_node_ip))
         print('ray get node ip: ', ray.util.get_node_ip_address())
         if not self._maybe_load_from_cloud(checkpoint_path) and (
