@@ -627,9 +627,12 @@ class Trainable:
             checkpoint = _get_checkpoint_from_remote_node(
                 checkpoint_path, checkpoint_node_ip
             )
+            try:
+                print('final_checkpoint_new', checkpoint)
+            except:
+                print('no checkpoint found')
             if checkpoint:
                 checkpoint.to_directory(checkpoint_path)
-            print('final_checkpoint', checkpoint)
 
         if not os.path.exists(checkpoint_path):
             raise ValueError(
