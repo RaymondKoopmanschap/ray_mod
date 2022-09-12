@@ -614,6 +614,7 @@ class Trainable:
         print("checkpoint_path: ", checkpoint_path)
         print("checkpoint_node_ip: ", checkpoint_node_ip)
         if isinstance(checkpoint_path, Checkpoint):
+            print('checkpoint_path is instance of Checkpoint')
             return self._restore_from_checkpoint_obj(checkpoint_path)
 
         if not self._maybe_load_from_cloud(checkpoint_path) and (
@@ -624,6 +625,7 @@ class Trainable:
             # And the source IP is different to the current IP
             and checkpoint_node_ip != ray.util.get_node_ip_address()
         ):
+            print('Load checkpoint from remote node')
             checkpoint = _get_checkpoint_from_remote_node(
                 checkpoint_path, checkpoint_node_ip
             )
@@ -643,6 +645,7 @@ class Trainable:
 
         checkpoint_dir = TrainableUtil.find_checkpoint_dir(checkpoint_path)
         metadata = TrainableUtil.load_metadata(checkpoint_dir)
+        print('checkpoint_dir: ', checkpoint_dir)
 
         if metadata["saved_as_dict"]:
             # If data was saved as a dict (e.g. from a class trainable),
@@ -665,7 +668,7 @@ class Trainable:
         self._episodes_total = metadata["episodes_total"]
 
         # Actually load checkpoint
-        print('to_load', to_load)
+        print('to_load: ', to_load)
         self.load_checkpoint(to_load)
 
         self._time_since_restore = 0.0
